@@ -7,12 +7,14 @@ import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
+import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
 import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Scan'>;
 
 export function ScanScreen({ navigation }: Props) {
+  const { balance, scanPay } = useDemoWallet();
   const [merchantCode, setMerchantCode] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -22,16 +24,29 @@ export function ScanScreen({ navigation }: Props) {
       showAlert('Complete payment details', 'Enter a merchant code and amount, or use the demo scanner.');
       return;
     }
-    showAlert('Payment ready', `Merchant ${merchantCode.trim()}\nAmount: PHP ${numericAmount.toLocaleString('en-PH')}\n\nReview this payment before confirming.`);
+    const result = scanPay(numericAmount, merchantCode);
+    if (!result.success) {
+      showAlert('Payment not completed', result.message);
+      return;
+    }
+    setMerchantCode('');
+    setAmount('');
+    showAlert('Payment complete', `${formatPHP(numericAmount)} paid to ${merchantCode.trim()}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+  };
+
+  const scanDemoQr = () => {
+    setMerchantCode('CAFE-0042');
+    setAmount('250');
+    showAlert('Demo QR scanned', 'Cafe 0042 was detected. Review the merchant code and amount, then continue payment.');
   };
 
   return (
     <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent} scroll>
       <AppHeader title="Scan to Pay" subtitle="Pay securely with a QR code" navigation={navigation} dark />
       <View style={styles.content}>
-        <View style={styles.scannerCard}><View style={styles.scanFrame}><View style={[styles.corner, styles.topLeft]} /><View style={[styles.corner, styles.topRight]} /><View style={[styles.corner, styles.bottomLeft]} /><View style={[styles.corner, styles.bottomRight]} /><Ionicons name="scan-outline" size={58} color={colors.blue} /></View><Text style={styles.scanTitle}>Scan a merchant QR</Text><Text style={styles.scanBody}>Point your camera at the QR code to continue.</Text><PrimaryButton title="Open camera" icon="camera-outline" onPress={() => showAlert('Camera demo', 'The camera view will open here on a physical device.')} style={styles.cameraButton} /></View>
+        <View style={styles.scannerCard}><View style={styles.scanFrame}><View style={[styles.corner, styles.topLeft]} /><View style={[styles.corner, styles.topRight]} /><View style={[styles.corner, styles.bottomLeft]} /><View style={[styles.corner, styles.bottomRight]} /><Ionicons name="scan-outline" size={58} color={colors.blue} /></View><Text style={styles.scanTitle}>Scan a merchant QR</Text><Text style={styles.scanBody}>Point your camera at the QR code to continue.</Text><PrimaryButton title="Scan demo QR" icon="camera-outline" onPress={scanDemoQr} style={styles.cameraButton} /></View>
         <View style={styles.dividerRow}><View style={styles.divider} /><Text style={styles.or}>OR ENTER MANUALLY</Text><View style={styles.divider} /></View>
-        <View style={styles.manualCard}><Text style={styles.manualTitle}>Pay using a merchant code</Text><FormField label="Merchant code" value={merchantCode} onChangeText={setMerchantCode} placeholder="e.g. ICASH-1234" autoCapitalize="characters" /><FormField label="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" /><PrimaryButton title="Continue payment" icon="arrow-forward" onPress={pay} /></View>
+        <View style={styles.manualCard}><View style={styles.manualHeading}><Text style={styles.manualTitle}>Pay using a merchant code</Text><Text style={styles.balanceText}>{formatPHP(balance)} available</Text></View><FormField label="Merchant code" value={merchantCode} onChangeText={setMerchantCode} placeholder="e.g. ICASH-1234" autoCapitalize="characters" /><FormField label="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" /><PrimaryButton title="Continue payment" icon="arrow-forward" onPress={pay} /></View>
       </View>
     </Screen>
   );
@@ -54,5 +69,7 @@ const styles = StyleSheet.create({
   divider: { flex: 1, height: 1, backgroundColor: colors.line },
   or: { color: colors.muted, fontFamily: fonts.medium, fontSize: 9 },
   manualCard: { backgroundColor: colors.white, borderRadius: 18, padding: spacing.md },
-  manualTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 15, marginBottom: spacing.md }
+  manualHeading: { marginBottom: spacing.md },
+  manualTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 15 },
+  balanceText: { color: colors.muted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }
 });

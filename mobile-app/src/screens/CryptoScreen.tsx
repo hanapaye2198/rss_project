@@ -1,15 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader, SectionTitle } from '../components/AppHeader';
+import { FormField, SelectField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
+import { useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
 import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Crypto'>;
 type IconName = keyof typeof Ionicons.glyphMap;
+type TradeMode = 'Buy' | 'Sell' | 'Convert';
+const assets = ['BTC', 'ETH', 'USDT'];
 
 const holdings = [
   { name: 'Bitcoin', symbol: 'BTC', amount: '0.0124 BTC', value: 'PHP 4,218.00', change: '+4.8%', icon: 'logo-bitcoin' as IconName, color: '#F6AB1A' },
@@ -18,6 +23,38 @@ const holdings = [
 ];
 
 export function CryptoScreen({ navigation }: Props) {
+  const { cryptoBuy, cryptoSell } = useDemoWallet();
+  const [mode, setMode] = useState<TradeMode | null>(null);
+  const [asset, setAsset] = useState(assets[0] ?? 'BTC');
+  const [tradeAmount, setTradeAmount] = useState('');
+
+  const beginTrade = (nextMode: TradeMode) => {
+    setMode(nextMode);
+    setTradeAmount('');
+  };
+
+  const submitTrade = () => {
+    const numericAmount = Number(tradeAmount.replace(/,/g, ''));
+    if (!numericAmount || numericAmount <= 0) {
+      showAlert('Enter an amount', `Enter the PHP amount to ${mode?.toLowerCase() || 'trade'} ${asset}.`);
+      return;
+    }
+
+    if (mode === 'Convert') {
+      setTradeAmount('');
+      showAlert('Conversion complete', `${asset} was converted in this demo wallet.`);
+      return;
+    }
+
+    const result = mode === 'Buy' ? cryptoBuy(numericAmount, asset) : cryptoSell(numericAmount, asset);
+    if (!result.success) {
+      showAlert('Crypto trade not completed', result.message);
+      return;
+    }
+    setTradeAmount('');
+    showAlert(`${mode} order complete`, `${asset} ${mode?.toLowerCase()} order for PHP ${numericAmount.toLocaleString('en-PH')} was added to your activity.`);
+  };
+
   return (
     <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent}>
       <AppHeader title="Crypto" subtitle="Buy, sell, and track digital assets" navigation={navigation} dark />
@@ -28,10 +65,12 @@ export function CryptoScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.quickRow}>
-          <QuickAction icon="arrow-down-circle-outline" label="Buy" onPress={() => showAlert('Buy crypto', 'Choose a coin and payment method to place a demo buy order.')} />
-          <QuickAction icon="arrow-up-circle-outline" label="Sell" onPress={() => showAlert('Sell crypto', 'Your available holdings will appear here when you sell crypto.')} />
-          <QuickAction icon="swap-horizontal" label="Convert" onPress={() => showAlert('Convert crypto', 'Swap between supported coins in this demo flow.')} />
+          <QuickAction icon="arrow-down-circle-outline" label="Buy" onPress={() => beginTrade('Buy')} />
+          <QuickAction icon="arrow-up-circle-outline" label="Sell" onPress={() => beginTrade('Sell')} />
+          <QuickAction icon="swap-horizontal" label="Convert" onPress={() => beginTrade('Convert')} />
         </View>
+
+        {mode ? <View style={styles.tradeCard}><View style={styles.tradeHeading}><Text style={styles.tradeTitle}>{mode} crypto</Text><Pressable accessibilityRole="button" accessibilityLabel="Close crypto trade" onPress={() => setMode(null)} style={styles.closeButton}><Ionicons name="close" size={19} color={colors.muted} /></Pressable></View><SelectField label="Asset" value={asset} options={assets} onChange={setAsset} /><FormField label="Amount (PHP)" value={tradeAmount} onChangeText={setTradeAmount} placeholder="0.00" keyboardType="decimal-pad" helper={mode === 'Buy' ? 'The amount will be deducted from your iCASH wallet.' : 'Demo proceeds will be added to your iCASH wallet.'} /><PrimaryButton title={`${mode} ${mode === 'Convert' ? 'asset' : 'crypto'}`} icon="arrow-forward" onPress={submitTrade} /></View> : null}
 
         <SectionTitle title="My holdings" action="View prices" onAction={() => showAlert('Market prices', 'Live market prices will be connected here.')} />
         <View style={styles.card}>{holdings.map((holding, index) => <HoldingRow key={holding.symbol} {...holding} last={index === holdings.length - 1} />)}</View>
@@ -66,6 +105,10 @@ const styles = StyleSheet.create({
   quickIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: colors.blueSoft, alignItems: 'center', justifyContent: 'center' },
   quickLabel: { color: colors.ink, fontFamily: fonts.bold, fontSize: 11 },
   pressed: { opacity: .65, transform: [{ scale: .98 }] },
+  tradeCard: { borderRadius: 16, backgroundColor: colors.white, padding: spacing.md },
+  tradeHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
+  tradeTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 15 },
+  closeButton: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   card: { backgroundColor: colors.white, borderRadius: 16, paddingHorizontal: spacing.md },
   holdingRow: { minHeight: 70, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#F0F1F5', gap: 10 },
   lastRow: { borderBottomWidth: 0 },

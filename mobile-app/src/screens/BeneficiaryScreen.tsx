@@ -11,8 +11,9 @@ import { colors, fonts, spacing } from '../theme';
 import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Beneficiary'>;
+type Beneficiary = { name: string; detail: string; initials: string; color: string };
 
-const beneficiaries = [
+const beneficiaries: Beneficiary[] = [
   { name: 'Maria Santos', detail: 'GCash · 0917 123 4567', initials: 'MS', color: '#F2A65A' },
   { name: 'Juan Reyes', detail: 'BDO · 0012 3456 78', initials: 'JR', color: '#6778E9' },
   { name: 'Hannah Cruz', detail: 'BPI · 0098 7654 32', initials: 'HC', color: '#45B98A' },
@@ -21,7 +22,26 @@ const beneficiaries = [
 
 export function BeneficiaryScreen({ navigation }: Props) {
   const [query, setQuery] = useState('');
-  const filtered = useMemo(() => beneficiaries.filter((item) => `${item.name} ${item.detail}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const [savedBeneficiaries, setSavedBeneficiaries] = useState(beneficiaries);
+  const [adding, setAdding] = useState(false);
+  const [name, setName] = useState('');
+  const [detail, setDetail] = useState('');
+  const filtered = useMemo(() => savedBeneficiaries.filter((item) => `${item.name} ${item.detail}`.toLowerCase().includes(query.toLowerCase())), [query, savedBeneficiaries]);
+
+  const saveBeneficiary = () => {
+    const trimmedName = name.trim();
+    const trimmedDetail = detail.trim();
+    if (!trimmedName || !trimmedDetail) {
+      showAlert('Complete the details', 'Enter a name and account or mobile number.');
+      return;
+    }
+    const initials = trimmedName.split(/\s+/).map((word) => word.charAt(0)).join('').slice(0, 2).toUpperCase();
+    setSavedBeneficiaries((current) => [{ name: trimmedName, detail: trimmedDetail, initials, color: '#5D8CE8' }, ...current]);
+    setName('');
+    setDetail('');
+    setAdding(false);
+    showAlert('Beneficiary saved', `${trimmedName} is now ready for faster transfers.`);
+  };
 
   return (
     <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent}>
@@ -30,8 +50,8 @@ export function BeneficiaryScreen({ navigation }: Props) {
         <View style={styles.summary}><View style={styles.summaryIcon}><Ionicons name="people-outline" size={24} color={colors.blue} /></View><View><Text style={styles.summaryTitle}>Send in a few taps</Text><Text style={styles.summaryBody}>Save trusted recipients for faster transfers.</Text></View></View>
         <FormField label="Search saved beneficiaries" value={query} onChangeText={setQuery} placeholder="Search by name or account" rightIcon="search-outline" />
         <View style={styles.listHeader}><Text style={styles.sectionTitle}>Saved beneficiaries</Text><Text style={styles.count}>{filtered.length} people</Text></View>
-        <View style={styles.list}>{filtered.length ? filtered.map((item) => <BeneficiaryRow key={item.name} {...item} />) : <View style={styles.empty}><Ionicons name="search-outline" size={27} color={colors.muted} /><Text style={styles.emptyTitle}>No beneficiary found</Text><Text style={styles.emptyBody}>Try another name or account number.</Text></View>}</View>
-        <PrimaryButton title="Add beneficiary" icon="add" onPress={() => showAlert('Add beneficiary', 'Choose a bank, e-wallet, or mobile number to save a new recipient.')} />
+        <View style={styles.list}>{filtered.length ? filtered.map((item) => <BeneficiaryRow key={`${item.name}-${item.detail}`} {...item} />) : <View style={styles.empty}><Ionicons name="search-outline" size={27} color={colors.muted} /><Text style={styles.emptyTitle}>No beneficiary found</Text><Text style={styles.emptyBody}>Try another name or account number.</Text></View>}</View>
+        {adding ? <View style={styles.addCard}><Text style={styles.addTitle}>New beneficiary</Text><FormField label="Full name" value={name} onChangeText={setName} placeholder="Enter recipient name" autoCapitalize="words" /><FormField label="Account or mobile number" value={detail} onChangeText={setDetail} placeholder="e.g. BDO · 0012 3456 78" /><PrimaryButton title="Save beneficiary" icon="checkmark" onPress={saveBeneficiary} /><Pressable accessibilityRole="button" onPress={() => setAdding(false)} style={styles.cancel}><Text style={styles.cancelText}>Cancel</Text></Pressable></View> : <PrimaryButton title="Add beneficiary" icon="add" onPress={() => setAdding(true)} />}
       </View>
     </Screen>
   );
@@ -61,5 +81,9 @@ const styles = StyleSheet.create({
   detail: { color: colors.muted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 },
   empty: { minHeight: 160, alignItems: 'center', justifyContent: 'center' },
   emptyTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 13, marginTop: 9 },
-  emptyBody: { color: colors.muted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }
+  emptyBody: { color: colors.muted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 },
+  addCard: { borderRadius: 16, backgroundColor: colors.white, padding: spacing.md },
+  addTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 15, marginBottom: spacing.md },
+  cancel: { alignItems: 'center', justifyContent: 'center', minHeight: 40, marginTop: 6 },
+  cancelText: { color: colors.muted, fontFamily: fonts.medium, fontSize: 12 }
 });

@@ -21,6 +21,11 @@ type DemoWallet = {
   bankTransfer: (amount: number, bank: string, accountName: string) => DemoResult;
   payBill: (amount: number, category: string, biller: string) => DemoResult;
   buyELoad: (amount: number, network: string, phone: string) => DemoResult;
+  saveMoney: (amount: number, goal: string) => DemoResult;
+  cryptoBuy: (amount: number, asset: string) => DemoResult;
+  cryptoSell: (amount: number, asset: string) => DemoResult;
+  remitMoney: (amount: number, recipient: string) => DemoResult;
+  scanPay: (amount: number, merchant: string) => DemoResult;
 };
 
 const initialTransactions: Transaction[] = [
@@ -97,7 +102,51 @@ export function DemoProvider({ children }: PropsWithChildren) {
     return { success: true };
   }, [addTransaction, checkDebit]);
 
-  const value = useMemo(() => ({ balance, transactions, sendMoney, cashIn, bankTransfer, payBill, buyELoad }), [balance, transactions, sendMoney, cashIn, bankTransfer, payBill, buyELoad]);
+  const saveMoney = useCallback((amount: number, goal: string): DemoResult => {
+    const check = checkDebit(amount);
+    if (!check.success) return check;
+    if (!goal.trim()) return { success: false, message: 'Choose a savings goal.' };
+    setBalance((current) => current - amount);
+    addTransaction('Save Money', amount, 'debit', 'save-outline');
+    return { success: true };
+  }, [addTransaction, checkDebit]);
+
+  const cryptoBuy = useCallback((amount: number, asset: string): DemoResult => {
+    const check = checkDebit(amount);
+    if (!check.success) return check;
+    if (!asset.trim()) return { success: false, message: 'Choose a crypto asset.' };
+    setBalance((current) => current - amount);
+    addTransaction(`Crypto Buy · ${asset}`, amount, 'debit', 'hardware-chip');
+    return { success: true };
+  }, [addTransaction, checkDebit]);
+
+  const cryptoSell = useCallback((amount: number, asset: string): DemoResult => {
+    if (!Number.isFinite(amount) || amount <= 0) return { success: false, message: 'Enter an amount greater than zero.' };
+    if (!asset.trim()) return { success: false, message: 'Choose a crypto asset.' };
+    setBalance((current) => current + amount);
+    addTransaction(`Crypto Sell · ${asset}`, amount, 'credit', 'hardware-chip');
+    return { success: true };
+  }, [addTransaction]);
+
+  const remitMoney = useCallback((amount: number, recipient: string): DemoResult => {
+    const check = checkDebit(amount);
+    if (!check.success) return check;
+    if (!recipient.trim()) return { success: false, message: 'Enter the recipient name.' };
+    setBalance((current) => current - amount);
+    addTransaction('IREMITX Remittance', amount, 'debit', 'globe-outline');
+    return { success: true };
+  }, [addTransaction, checkDebit]);
+
+  const scanPay = useCallback((amount: number, merchant: string): DemoResult => {
+    const check = checkDebit(amount);
+    if (!check.success) return check;
+    if (!merchant.trim()) return { success: false, message: 'Enter a merchant code.' };
+    setBalance((current) => current - amount);
+    addTransaction('Scan to Pay', amount, 'debit', 'scan-outline');
+    return { success: true };
+  }, [addTransaction, checkDebit]);
+
+  const value = useMemo(() => ({ balance, transactions, sendMoney, cashIn, bankTransfer, payBill, buyELoad, saveMoney, cryptoBuy, cryptoSell, remitMoney, scanPay }), [balance, transactions, sendMoney, cashIn, bankTransfer, payBill, buyELoad, saveMoney, cryptoBuy, cryptoSell, remitMoney, scanPay]);
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
 }
 
