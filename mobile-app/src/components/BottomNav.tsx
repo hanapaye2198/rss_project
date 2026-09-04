@@ -13,8 +13,8 @@ export function BottomNav({ onHome, onScan, onBeneficiary }: { onHome: () => voi
 }
 
 const styles = StyleSheet.create({
-  nav: { height: 70, borderRadius: 24, backgroundColor: colors.blue, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 18, marginTop: 22 },
-  navItem: { alignItems: 'center', justifyContent: 'center', gap: 3, minWidth: 70 },
-  navText: { color: colors.white, fontFamily: fonts.medium, fontSize: 10 },
-  scan: { width: 61, height: 61, borderRadius: 31, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', marginTop: -28, borderWidth: 6, borderColor: colors.background }
+  nav: { height: 58, borderRadius: 22, backgroundColor: colors.blue, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginTop: 12 },
+  navItem: { alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 78 },
+  navText: { color: colors.white, fontFamily: fonts.medium, fontSize: 9 },
+  scan: { width: 54, height: 54, borderRadius: 27, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', marginTop: -22, borderWidth: 5, borderColor: colors.background }
 });
