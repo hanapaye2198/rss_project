@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -9,6 +9,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ELoad'>;
 const networks = [
@@ -30,10 +31,10 @@ export function ELoadScreen({ navigation }: Props) {
     const numericAmount = Number(amount.replace(/,/g, ''));
     const result = buyELoad(numericAmount, selected, phone);
     if (!result.success) {
-      Alert.alert('E-Load not completed', result.message);
+      showAlert('E-Load not completed', result.message);
       return;
     }
-    Alert.alert('E-Load purchased', `${formatPHP(numericAmount)} of ${selected} load was sent to ${phone}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+    showAlert('E-Load purchased', `${formatPHP(numericAmount)} of ${selected} load was sent to ${phone}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
   };
 
   return <Screen backgroundColor={colors.blue} contentStyle={styles.content}>
@@ -41,7 +42,7 @@ export function ELoadScreen({ navigation }: Props) {
     <Text style={styles.helper}>Select a network to buy prepaid load.</Text>
     <View style={styles.balancePill}><Text style={styles.balancePillText}>Wallet balance {formatPHP(balance)}</Text></View>
     <Text style={styles.sectionLabel}>Select network</Text>
-    <View style={styles.grid}>{networks.map((network) => <Pressable key={network.label} onPress={() => setSelected(network.label)} style={[styles.network, selected === network.label && styles.selected]}><View style={styles.networkIcon}><Image source={network.logo} style={styles.networkLogo} resizeMode="contain" /></View><Text style={styles.networkLabel}>{network.label}</Text>{selected === network.label ? <Ionicons name="checkmark-circle" size={16} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
+    <View style={styles.grid}>{networks.map((network) => <Pressable accessibilityRole="button" key={network.label} onPress={() => setSelected(network.label)} style={[styles.network, selected === network.label && styles.selected]}><View pointerEvents="none" style={styles.networkIcon}><Image source={network.logo} style={styles.networkLogo} resizeMode="contain" /></View><Text style={styles.networkLabel}>{network.label}</Text>{selected === network.label ? <Ionicons name="checkmark-circle" size={16} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
     {selected ? <View style={styles.formCard}><Text style={styles.formTitle}>{selected} load details</Text><FormField label="Mobile number" value={phone} onChangeText={setPhone} placeholder="09XX XXX XXXX" keyboardType="phone-pad" /><FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter load amount" keyboardType="decimal-pad" /><PrimaryButton title="Buy load" onPress={submit} icon="phone-portrait-outline" /></View> : <Text style={styles.selectHint}>Select a network to enter the load details.</Text>}
   </Screen>;
 }

@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField, SelectField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -8,6 +8,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BankTransfer'>;
 
@@ -21,23 +22,23 @@ export function BankTransferScreen({ navigation }: Props) {
   const submit = () => {
     const numericAmount = Number(amount.replace(/,/g, ''));
     if (!accountNumber.trim()) {
-      Alert.alert('Account number needed', 'Enter the receiving account number to continue.');
+      showAlert('Account number needed', 'Enter the receiving account number to continue.');
       return;
     }
     const result = bankTransfer(numericAmount, bank, accountName);
     if (!result.success) {
-      Alert.alert('Transfer not completed', result.message);
+      showAlert('Transfer not completed', result.message);
       return;
     }
-    Alert.alert('Bank transfer complete', `${formatPHP(numericAmount)} sent to ${accountName}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+    showAlert('Bank transfer complete', `${formatPHP(numericAmount)} sent to ${accountName}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
   };
 
   return <Screen backgroundColor={colors.blue} contentStyle={styles.content}>
     <AppHeader title="Bank Transfer" navigation={navigation} dark />
     <Text style={styles.sectionLabel}>Favorites</Text>
-    <Pressable onPress={() => { setBank('BDO'); setAccountName('Maria Santos'); setAccountNumber('0012345678'); }} style={({ pressed }) => [styles.favorite, pressed && styles.pressed]}><View style={styles.plus}><Text style={styles.plusText}>+</Text></View><Text style={styles.addText}>{bank ? 'Favorite loaded' : 'Add demo favorite'}</Text></Pressable>
+    <Pressable accessibilityRole="button" onPress={() => { setBank('BDO'); setAccountName('Maria Santos'); setAccountNumber('0012345678'); }} style={({ pressed }) => [styles.favorite, pressed && styles.pressed]}><View style={styles.plus}><Text style={styles.plusText}>+</Text></View><Text style={styles.addText}>{bank ? 'Favorite loaded' : 'Add demo favorite'}</Text></Pressable>
     <Text style={styles.sectionLabel}>Account to Transfer</Text>
-    <SelectField label="Account type" value="PHP" onPress={() => Alert.alert('Account type', 'PHP selected for this demo.')} />
+    <SelectField label="Account type" value="PHP" onPress={() => showAlert('Account type', 'PHP selected for this demo.')} />
     <FormField label="Account name" value={accountName} onChangeText={setAccountName} placeholder="Enter account name" autoCapitalize="words" />
     <SelectField label="Bank" value={bank} onPress={() => setBank(bank ? '' : 'BDO')} placeholder="Select bank (tap to choose BDO)" />
     <FormField label="Account number" value={accountNumber} onChangeText={setAccountNumber} placeholder="Enter account number" keyboardType="number-pad" />

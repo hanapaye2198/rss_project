@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -9,6 +9,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PayBills'>;
 const categories: { label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
@@ -25,10 +26,10 @@ export function PayBillsScreen({ navigation }: Props) {
     const numericAmount = Number(amount.replace(/,/g, ''));
     const result = payBill(numericAmount, selectedCategory, biller);
     if (!result.success) {
-      Alert.alert('Bill payment not completed', result.message);
+      showAlert('Bill payment not completed', result.message);
       return;
     }
-    Alert.alert('Bill payment complete', `${formatPHP(numericAmount)} paid to ${biller}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+    showAlert('Bill payment complete', `${formatPHP(numericAmount)} paid to ${biller}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
   };
 
   return <Screen backgroundColor={colors.blue} contentStyle={styles.content}>
@@ -36,7 +37,7 @@ export function PayBillsScreen({ navigation }: Props) {
     <Text style={styles.helper}>Choose a category to find your biller.</Text>
     <View style={styles.balancePill}><Text style={styles.balancePillText}>Wallet balance {formatPHP(balance)}</Text></View>
     <Text style={styles.sectionLabel}>Choose from categories</Text>
-    <View style={styles.grid}>{categories.map((category) => <Pressable key={category.label} onPress={() => setSelectedCategory(category.label)} style={({ pressed }) => [styles.category, selectedCategory === category.label && styles.selected, pressed && styles.pressed]}><View style={[styles.categoryIcon, { backgroundColor: category.color }]}><Ionicons name={category.icon} size={20} color={colors.white} /></View><Text style={styles.categoryLabel}>{category.label}</Text>{selectedCategory === category.label ? <Ionicons name="checkmark-circle" size={15} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
+    <View style={styles.grid}>{categories.map((category) => <Pressable accessibilityRole="button" key={category.label} onPress={() => setSelectedCategory(category.label)} style={({ pressed }) => [styles.category, selectedCategory === category.label && styles.selected, pressed && styles.pressed]}><View style={[styles.categoryIcon, { backgroundColor: category.color }]}><Ionicons name={category.icon} size={20} color={colors.white} /></View><Text style={styles.categoryLabel}>{category.label}</Text>{selectedCategory === category.label ? <Ionicons name="checkmark-circle" size={15} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
     {selectedCategory ? <View style={styles.formCard}><Text style={styles.formTitle}>{selectedCategory} bill payment</Text><FormField label="Biller or account number" value={biller} onChangeText={setBiller} placeholder="Enter biller reference" /><FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" /><PrimaryButton title="Pay bill" onPress={submit} icon="receipt-outline" /></View> : <Text style={styles.selectHint}>Select a category to enter your bill details.</Text>}
   </Screen>;
 }

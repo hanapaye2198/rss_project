@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField, SelectField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -8,6 +8,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SendMoney'>;
 
@@ -21,17 +22,17 @@ export function SendMoneyScreen({ navigation }: Props) {
     const numericAmount = Number(amount.replace(/,/g, ''));
     const result = sendMoney(numericAmount, recipient);
     if (!result.success) {
-      Alert.alert('Transfer not sent', result.message);
+      showAlert('Transfer not sent', result.message);
       return;
     }
-    Alert.alert('Transfer complete', `${formatPHP(numericAmount)} sent to ${recipient}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+    showAlert('Transfer complete', `${formatPHP(numericAmount)} sent to ${recipient}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
   };
 
   return <Screen backgroundColor={colors.blue} contentStyle={styles.content}>
     <AppHeader title="Send Money" navigation={navigation} dark />
     <View style={styles.availableRow}><Text style={styles.availableText}>Available balance: {formatPHP(balance)}</Text></View>
     <FormField label="Recipient" value={recipient} onChangeText={setRecipient} placeholder="Enter mobile number or name" keyboardType="phone-pad" />
-    <SelectField label="Exchange rate" value="1 USD = ₱59.9200 PHP" onPress={() => Alert.alert('Exchange rate', 'Rates are refreshed before you confirm the transfer.')} />
+    <SelectField label="Exchange rate" value="1 USD = ₱59.9200 PHP" onPress={() => showAlert('Exchange rate', 'Rates are refreshed before you confirm the transfer.')} />
     <SelectField label="Purpose" value={purpose} placeholder="Select purpose" onPress={() => setPurpose(purpose ? '' : 'Family support')} />
     <FormField label="Payment method" value="iCASH wallet" editable={false} />
     <FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" helper="Your transfer will be deducted from your wallet balance." />

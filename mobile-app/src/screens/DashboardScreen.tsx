@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BottomNav } from '../components/BottomNav';
 import { Screen } from '../components/Screen';
 import { SectionTitle } from '../components/AppHeader';
 import { colors, fonts, spacing } from '../theme';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -27,7 +28,7 @@ export function DashboardScreen({ navigation }: Props) {
   const { balance, transactions } = useDemoWallet();
   const openAction = (screen: keyof RootStackParamList, label: string) => {
     if (screen === 'Dashboard') {
-      Alert.alert(label, `${label} is coming soon to your iCASH wallet.`);
+      showAlert(label, `${label} is coming soon to your iCASH wallet.`);
       return;
     }
     navigation.navigate(screen);
@@ -37,9 +38,9 @@ export function DashboardScreen({ navigation }: Props) {
     <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent} footer={<BottomNav onHome={() => navigation.navigate('Dashboard')} />}>
       <LinearGradient colors={[colors.blue, '#1313D7']} style={styles.walletHero}>
         <View style={styles.topBar}>
-          <Pressable accessibilityLabel="Profile" onPress={() => Alert.alert('Profile', 'Your account profile will appear here.')} style={styles.circleButton}><Ionicons name="person-outline" size={20} color={colors.ink} /></Pressable>
+          <Pressable accessibilityLabel="Profile" onPress={() => showAlert('Profile', 'Your account profile will appear here.')} style={styles.circleButton}><Ionicons name="person-outline" size={20} color={colors.ink} /></Pressable>
           <Image source={require('../../assets/icash-icon.png')} style={styles.logo} resizeMode="contain" />
-          <Pressable accessibilityLabel="Notifications" onPress={() => Alert.alert('Notifications', 'You are all caught up.')} style={styles.circleButton}><Ionicons name="notifications-outline" size={20} color={colors.ink} /><View style={styles.notificationDot} /></Pressable>
+          <Pressable accessibilityLabel="Notifications" onPress={() => showAlert('Notifications', 'You are all caught up.')} style={styles.circleButton}><Ionicons name="notifications-outline" size={20} color={colors.ink} /><View style={styles.notificationDot} /></Pressable>
         </View>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <View style={styles.balanceRow}><Text style={styles.balance}>₱ {balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</Text><Ionicons name="eye-outline" size={27} color={colors.white} /></View>
@@ -59,7 +60,7 @@ export function DashboardScreen({ navigation }: Props) {
           <Image source={require('../../assets/dashboard-reference.png')} style={styles.offerPhoto} resizeMode="stretch" />
         </View>
 
-        <SectionTitle title="Activities" action="View All" onAction={() => Alert.alert('Activities', 'Your complete transaction history will appear here.')} />
+        <SectionTitle title="Activities" action="View All" onAction={() => showAlert('Activities', 'Your complete transaction history will appear here.')} />
         <View style={styles.activityCard}>
           {transactions.slice(0, 3).map((transaction, index) => <ActivityRow key={transaction.id} {...transaction} last={index === Math.min(transactions.length, 3) - 1} />)}
         </View>

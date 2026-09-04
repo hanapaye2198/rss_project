@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -9,6 +9,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
+import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CashIn'>;
 const banks = [{ name: 'Online Banking', brands: ['BDO', 'UnionBank', 'BPI'], icon: 'card-outline' as const }, { name: 'ATM Cash Deposit', brands: ['BDO', 'BPI'], icon: 'business-outline' as const }, { name: 'Over The Counter', brands: ['BDO', 'BPI', 'PNB', 'D?S'], icon: 'storefront-outline' as const }];
@@ -22,16 +23,16 @@ export function CashInScreen({ navigation }: Props) {
     const numericAmount = Number(amount.replace(/,/g, ''));
     const result = cashIn(numericAmount, selectedMethod);
     if (!result.success) {
-      Alert.alert('Cash-in not completed', result.message);
+      showAlert('Cash-in not completed', result.message);
       return;
     }
-    Alert.alert('Cash-in complete', `${formatPHP(numericAmount)} was added through ${selectedMethod}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
+    showAlert('Cash-in complete', `${formatPHP(numericAmount)} was added through ${selectedMethod}.`, [{ text: 'Done', onPress: () => navigation.goBack() }]);
   };
 
   return <Screen backgroundColor={colors.blue} contentStyle={styles.content}>
     <AppHeader title="Cash-In" navigation={navigation} dark />
     <View style={styles.heading}><Text style={styles.title}>Add money to your account</Text><Text style={styles.subtitle}>Choose a convenient way to top up your iCASH wallet.</Text></View>
-    {banks.map((bank) => <Pressable key={bank.name} onPress={() => setSelectedMethod(bank.name)} style={({ pressed }) => [styles.bankCard, selectedMethod === bank.name && styles.selected, pressed && styles.pressed]}><View style={styles.bankIcon}><Ionicons name={bank.icon} size={20} color={colors.blue} /></View><View style={styles.bankCopy}><Text style={styles.bankName}>{bank.name}</Text><View style={styles.brandRow}>{bank.brands.map((brand) => <Text key={brand} style={styles.brandBadge}>{brand}</Text>)}</View></View>{selectedMethod === bank.name ? <Ionicons name="checkmark-circle" size={20} color={colors.blue} /> : <Ionicons name="chevron-forward" size={18} color={colors.muted} />}</Pressable>)}
+    {banks.map((bank) => <Pressable accessibilityRole="button" key={bank.name} onPress={() => setSelectedMethod(bank.name)} style={({ pressed }) => [styles.bankCard, selectedMethod === bank.name && styles.selected, pressed && styles.pressed]}><View style={styles.bankIcon}><Ionicons name={bank.icon} size={20} color={colors.blue} /></View><View style={styles.bankCopy}><Text style={styles.bankName}>{bank.name}</Text><View style={styles.brandRow}>{bank.brands.map((brand) => <Text key={brand} style={styles.brandBadge}>{brand}</Text>)}</View></View>{selectedMethod === bank.name ? <Ionicons name="checkmark-circle" size={20} color={colors.blue} /> : <Ionicons name="chevron-forward" size={18} color={colors.muted} />}</Pressable>)}
     {selectedMethod ? <View style={styles.formCard}><Text style={styles.formTitle}>Cash in through {selectedMethod}</Text><FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" /><PrimaryButton title="Add money" onPress={submit} icon="add-circle-outline" /></View> : <View style={styles.infoBox}><Ionicons name="shield-checkmark-outline" size={20} color={colors.green} /><Text style={styles.infoText}>Select a method to enter the amount you want to add.</Text></View>}
   </Screen>;
 }

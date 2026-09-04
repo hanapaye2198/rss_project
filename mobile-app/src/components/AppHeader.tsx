@@ -14,7 +14,7 @@ type HeaderProps = {
 export function AppHeader({ title, subtitle, navigation, dark = false }: HeaderProps) {
   return (
     <View style={[styles.header, dark && styles.headerDark]}>
-      <Pressable accessibilityLabel="Go back" hitSlop={10} onPress={() => navigation.goBack()} style={styles.backButton}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Go back" hitSlop={10} onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="chevron-back" size={22} color={dark ? colors.white : colors.ink} />
       </Pressable>
       <View style={styles.titleWrap}>
@@ -30,7 +30,7 @@ export function SectionTitle({ title, action, onAction }: { title: string; actio
   return (
     <View style={styles.sectionTitle}>
       <Text style={styles.sectionTitleText}>{title}</Text>
-      {action && onAction ? <Pressable onPress={onAction}><Text style={styles.action}>{action}</Text></Pressable> : null}
+      {action && onAction ? <Pressable accessibilityRole="button" onPress={onAction}><Text style={styles.action}>{action}</Text></Pressable> : null}
     </View>
   );
 }
