@@ -17,7 +17,7 @@ type DemoWallet = {
   balance: number;
   transactions: Transaction[];
   sendMoney: (amount: number, recipient: string) => DemoResult;
-  cashIn: (amount: number, method: string) => DemoResult;
+  cashIn: (amount: number, method: string, bank: string, accountName: string, accountNumber: string) => DemoResult;
   bankTransfer: (amount: number, bank: string, accountName: string) => DemoResult;
   payBill: (amount: number, category: string, biller: string) => DemoResult;
   buyELoad: (amount: number, network: string, phone: string) => DemoResult;
@@ -67,9 +67,13 @@ export function DemoProvider({ children }: PropsWithChildren) {
     return { success: true };
   }, [addTransaction, checkDebit]);
 
-  const cashIn = useCallback((amount: number, method: string): DemoResult => {
+  const cashIn = useCallback((amount: number, method: string, bank: string, accountName: string, accountNumber: string): DemoResult => {
     if (!Number.isFinite(amount) || amount <= 0) return { success: false, message: 'Enter a cash-in amount greater than zero.' };
     if (!method) return { success: false, message: 'Choose a cash-in method.' };
+    if (!bank) return { success: false, message: 'Choose the bank receiving the deposit.' };
+    if (!accountName.trim()) return { success: false, message: 'Enter the account name.' };
+    const normalizedAccountNumber = accountNumber.replace(/\D/g, '');
+    if (normalizedAccountNumber.length < 6) return { success: false, message: 'Enter a valid receiving account number.' };
     setBalance((current) => current + amount);
     addTransaction('Cash-In', amount, 'credit', 'wallet-outline');
     return { success: true };
