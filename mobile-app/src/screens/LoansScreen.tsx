@@ -41,7 +41,7 @@ export function LoansScreen({ navigation }: Props) {
         <Text style={styles.sectionLabel}>Choose a loan</Text>
         <View style={styles.productList}>{products.map((item) => <ProductCard key={item.name} {...item} selected={product === item.name} onPress={() => setProduct(item.name)} />)}</View>
 
-        <View style={styles.formCard}><Text style={styles.formTitle}>Loan details</Text><FormField label="How much do you need?" value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" /><SelectField label="Repayment term" value={term} onPress={() => setTerm(terms[(terms.indexOf(term) + 1) % terms.length] ?? terms[0] ?? '')} /><Text style={styles.helper}>Tap the term field to compare available repayment periods.</Text><PrimaryButton title="Start application" icon="arrow-forward" onPress={submit} /></View>
+        <View style={styles.formCard}><Text style={styles.formTitle}>Loan details</Text><FormField label="How much do you need?" value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" /><SelectField label="Repayment term" value={term} options={terms} onChange={setTerm} /><Text style={styles.helper}>Choose a repayment period from the dropdown.</Text><PrimaryButton title="Start application" icon="arrow-forward" onPress={submit} /></View>
 
         <View style={styles.trust}><Ionicons name="lock-closed-outline" size={17} color={colors.blue} /><Text style={styles.trustText}>Your application details are encrypted and kept private.</Text></View>
       </View>

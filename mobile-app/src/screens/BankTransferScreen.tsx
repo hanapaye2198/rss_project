@@ -11,10 +11,13 @@ import { colors, fonts, spacing } from '../theme';
 import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BankTransfer'>;
+const accountTypes = ['PHP', 'USD'];
+const bankOptions = ['BDO', 'BPI', 'UnionBank', 'Metrobank', 'Landbank'];
 
 export function BankTransferScreen({ navigation }: Props) {
   const { bankTransfer } = useDemoWallet();
   const [bank, setBank] = useState('');
+  const [accountType, setAccountType] = useState(accountTypes[0] ?? 'PHP');
   const [accountName, setAccountName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [amount, setAmount] = useState('');
@@ -38,9 +41,9 @@ export function BankTransferScreen({ navigation }: Props) {
     <Text style={styles.sectionLabel}>Favorites</Text>
     <Pressable accessibilityRole="button" onPress={() => { setBank('BDO'); setAccountName('Maria Santos'); setAccountNumber('0012345678'); }} style={({ pressed }) => [styles.favorite, pressed && styles.pressed]}><View style={styles.plus}><Text style={styles.plusText}>+</Text></View><Text style={styles.addText}>{bank ? 'Favorite loaded' : 'Add demo favorite'}</Text></Pressable>
     <Text style={styles.sectionLabel}>Account to Transfer</Text>
-    <SelectField label="Account type" value="PHP" onPress={() => showAlert('Account type', 'PHP selected for this demo.')} />
+    <SelectField label="Account type" value={accountType} options={accountTypes} onChange={setAccountType} />
     <FormField label="Account name" value={accountName} onChangeText={setAccountName} placeholder="Enter account name" autoCapitalize="words" />
-    <SelectField label="Bank" value={bank} onPress={() => setBank(bank ? '' : 'BDO')} placeholder="Select bank (tap to choose BDO)" />
+    <SelectField label="Bank" value={bank} options={bankOptions} onChange={setBank} placeholder="Select bank" />
     <FormField label="Account number" value={accountNumber} onChangeText={setAccountNumber} placeholder="Enter account number" keyboardType="number-pad" />
     <FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter transfer amount" keyboardType="decimal-pad" />
     <PrimaryButton title="Continue" onPress={submit} icon="swap-horizontal" style={styles.button} />

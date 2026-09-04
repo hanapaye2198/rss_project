@@ -11,12 +11,15 @@ import { colors, fonts, spacing } from '../theme';
 import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SendMoney'>;
+const exchangeRates = ['1 USD = ₱59.9200 PHP', '1 USD = ₱60.1500 PHP'];
+const purposes = ['Family support', 'Goods and services', 'Personal transfer'];
 
 export function SendMoneyScreen({ navigation }: Props) {
   const { balance, sendMoney } = useDemoWallet();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-  const [purpose, setPurpose] = useState('');
+  const [exchangeRate, setExchangeRate] = useState(exchangeRates[0] ?? '1 USD = PHP');
+  const [purpose, setPurpose] = useState(purposes[0] ?? '');
 
   const submit = () => {
     const numericAmount = Number(amount.replace(/,/g, ''));
@@ -32,8 +35,8 @@ export function SendMoneyScreen({ navigation }: Props) {
     <AppHeader title="Send Money" navigation={navigation} dark />
     <View style={styles.availableRow}><Text style={styles.availableText}>Available balance: {formatPHP(balance)}</Text></View>
     <FormField label="Recipient" value={recipient} onChangeText={setRecipient} placeholder="Enter mobile number or name" keyboardType="phone-pad" />
-    <SelectField label="Exchange rate" value="1 USD = ₱59.9200 PHP" onPress={() => showAlert('Exchange rate', 'Rates are refreshed before you confirm the transfer.')} />
-    <SelectField label="Purpose" value={purpose} placeholder="Select purpose" onPress={() => setPurpose(purpose ? '' : 'Family support')} />
+    <SelectField label="Exchange rate" value={exchangeRate} options={exchangeRates} onChange={setExchangeRate} />
+    <SelectField label="Purpose" value={purpose} options={purposes} placeholder="Select purpose" onChange={setPurpose} />
     <FormField label="Payment method" value="iCASH wallet" editable={false} />
     <FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" helper="Your transfer will be deducted from your wallet balance." />
     <View style={styles.converted}><Text style={styles.convertedLabel}>Estimated recipient amount</Text><Text style={styles.convertedText}>{amount && Number(amount) > 0 ? `≈ ${(Number(amount) / 59.92).toFixed(2)} USD` : 'Converted amount will appear here'}</Text></View>
