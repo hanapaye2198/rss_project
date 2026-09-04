@@ -47,8 +47,8 @@ export function PayBillsScreen({ navigation }: Props) {
     <Text style={styles.sectionLabel}>Choose from categories</Text>
     <View style={styles.grid}>{categories.map((category) => <Pressable accessibilityRole="button" key={category.label} onPress={() => openPaymentModal(category.label)} style={({ pressed }) => [styles.category, selectedCategory === category.label && styles.selected, pressed && styles.pressed]}><View style={[styles.categoryIcon, { backgroundColor: category.color }]}><Ionicons name={category.icon} size={20} color={colors.white} /></View><Text style={styles.categoryLabel}>{category.label}</Text>{selectedCategory === category.label ? <Ionicons name="checkmark-circle" size={15} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
     <Text style={styles.selectHint}>Select a category to open its payment details.</Text>
-    <Modal visible={Boolean(selectedCategory)} transparent animationType="slide" onRequestClose={closePaymentModal}>
-      <KeyboardAvoidingView style={styles.modalRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <Modal visible={Boolean(selectedCategory)} transparent animationType="slide" onRequestClose={closePaymentModal} statusBarTranslucent>
+      <KeyboardAvoidingView style={styles.modalRoot} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Pressable style={styles.modalBackdrop} onPress={closePaymentModal} />
         <View style={styles.modalSheet}>
           <View style={styles.modalHandle} />
