@@ -13,11 +13,11 @@ import { showAlert } from '../utils/feedback';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'IREMITX'>;
 
-const countries = ['United States', 'Canada', 'United Kingdom', 'Singapore'];
+const countries = ['PH', 'United States', 'Canada', 'United Kingdom', 'Singapore'];
 
 export function IREMITXScreen({ navigation }: Props) {
   const { balance, remitMoney } = useDemoWallet();
-  const [country, setCountry] = useState(countries[0] ?? 'United States');
+  const [country, setCountry] = useState('PH');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
 
