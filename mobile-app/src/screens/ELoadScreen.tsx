@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -11,8 +11,13 @@ import { formatPHP, useDemoWallet } from '../state/DemoContext';
 import { colors, fonts, spacing } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ELoad'>;
-const networks: { label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
-  { label: 'Globe', icon: 'globe-outline', color: '#31B675' }, { label: 'Smart', icon: 'radio-outline', color: '#F5AB29' }, { label: 'TM', icon: 'wifi-outline', color: '#EB634E' }, { label: 'DITO', icon: 'cellular-outline', color: '#7F66D4' }, { label: 'GOMO', icon: 'phone-portrait-outline', color: '#33A9CE' }, { label: 'Sun', icon: 'sunny-outline', color: '#F5C32B' }
+const networks = [
+  { label: 'Globe', logo: require('../../assets/network-logos/globe.png') },
+  { label: 'Smart', logo: require('../../assets/network-logos/smart.png') },
+  { label: 'TM', logo: require('../../assets/network-logos/tm.png') },
+  { label: 'DITO', logo: require('../../assets/network-logos/dito.png') },
+  { label: 'GOMO', logo: require('../../assets/network-logos/gomo.png') },
+  { label: 'Sun', logo: require('../../assets/network-logos/sun.png') }
 ];
 
 export function ELoadScreen({ navigation }: Props) {
@@ -36,7 +41,7 @@ export function ELoadScreen({ navigation }: Props) {
     <Text style={styles.helper}>Select a network to buy prepaid load.</Text>
     <View style={styles.balancePill}><Text style={styles.balancePillText}>Wallet balance {formatPHP(balance)}</Text></View>
     <Text style={styles.sectionLabel}>Select network</Text>
-    <View style={styles.grid}>{networks.map((network) => <Pressable key={network.label} onPress={() => setSelected(network.label)} style={[styles.network, selected === network.label && styles.selected]}><View style={[styles.networkIcon, { backgroundColor: network.color }]}><Ionicons name={network.icon} size={21} color={colors.white} /></View><Text style={styles.networkLabel}>{network.label}</Text>{selected === network.label ? <Ionicons name="checkmark-circle" size={16} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
+    <View style={styles.grid}>{networks.map((network) => <Pressable key={network.label} onPress={() => setSelected(network.label)} style={[styles.network, selected === network.label && styles.selected]}><View style={styles.networkIcon}><Image source={network.logo} style={styles.networkLogo} resizeMode="contain" /></View><Text style={styles.networkLabel}>{network.label}</Text>{selected === network.label ? <Ionicons name="checkmark-circle" size={16} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
     {selected ? <View style={styles.formCard}><Text style={styles.formTitle}>{selected} load details</Text><FormField label="Mobile number" value={phone} onChangeText={setPhone} placeholder="09XX XXX XXXX" keyboardType="phone-pad" /><FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter load amount" keyboardType="decimal-pad" /><PrimaryButton title="Buy load" onPress={submit} icon="phone-portrait-outline" /></View> : <Text style={styles.selectHint}>Select a network to enter the load details.</Text>}
   </Screen>;
 }
@@ -50,7 +55,8 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.md, gap: 11 },
   network: { position: 'relative', width: '31.4%', minHeight: 98, borderWidth: 1, borderColor: colors.line, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', gap: 9, padding: 8 },
   selected: { borderColor: colors.blue, backgroundColor: colors.blueSoft },
-  networkIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  networkIcon: { width: 62, height: 40, alignItems: 'center', justifyContent: 'center' },
+  networkLogo: { width: 60, height: 36 },
   networkLabel: { color: colors.ink, fontFamily: fonts.bold, fontSize: 11 },
   check: { position: 'absolute', top: 7, right: 7 },
   formCard: { margin: spacing.md, marginTop: 24, padding: 17, borderRadius: 15, backgroundColor: colors.white, shadowColor: '#1B235D', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 },

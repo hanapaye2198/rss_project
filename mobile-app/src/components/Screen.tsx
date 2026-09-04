@@ -13,7 +13,7 @@ type ScreenProps = PropsWithChildren<{
 export function Screen({ children, scroll = true, contentStyle, backgroundColor = colors.background, footer }: ScreenProps) {
   const { width } = useWindowDimensions();
   const content = scroll ? (
-    <ScrollView style={[styles.flex, { width }]} contentContainerStyle={[styles.scrollContent, { width }, contentStyle]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <ScrollView style={[styles.flex, { width, backgroundColor: colors.background }]} contentContainerStyle={[styles.scrollContent, { width }, contentStyle]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : <View style={[styles.flex, contentStyle]}>{children}</View>;
