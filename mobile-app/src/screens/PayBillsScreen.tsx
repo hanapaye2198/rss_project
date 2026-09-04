@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { FormField } from '../components/FormField';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -22,6 +22,14 @@ export function PayBillsScreen({ navigation }: Props) {
   const [biller, setBiller] = useState('');
   const [amount, setAmount] = useState('');
 
+  const openPaymentModal = (category: string) => {
+    setSelectedCategory(category);
+    setBiller('');
+    setAmount('');
+  };
+
+  const closePaymentModal = () => setSelectedCategory('');
+
   const submit = () => {
     const numericAmount = Number(amount.replace(/,/g, ''));
     const result = payBill(numericAmount, selectedCategory, biller);
@@ -37,8 +45,21 @@ export function PayBillsScreen({ navigation }: Props) {
     <Text style={styles.helper}>Choose a category to find your biller.</Text>
     <View style={styles.balancePill}><Text style={styles.balancePillText}>Wallet balance {formatPHP(balance)}</Text></View>
     <Text style={styles.sectionLabel}>Choose from categories</Text>
-    <View style={styles.grid}>{categories.map((category) => <Pressable accessibilityRole="button" key={category.label} onPress={() => setSelectedCategory(category.label)} style={({ pressed }) => [styles.category, selectedCategory === category.label && styles.selected, pressed && styles.pressed]}><View style={[styles.categoryIcon, { backgroundColor: category.color }]}><Ionicons name={category.icon} size={20} color={colors.white} /></View><Text style={styles.categoryLabel}>{category.label}</Text>{selectedCategory === category.label ? <Ionicons name="checkmark-circle" size={15} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
-    {selectedCategory ? <View style={styles.formCard}><Text style={styles.formTitle}>{selectedCategory} bill payment</Text><FormField label="Biller or account number" value={biller} onChangeText={setBiller} placeholder="Enter biller reference" /><FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" /><PrimaryButton title="Pay bill" onPress={submit} icon="receipt-outline" /></View> : <Text style={styles.selectHint}>Select a category to enter your bill details.</Text>}
+    <View style={styles.grid}>{categories.map((category) => <Pressable accessibilityRole="button" key={category.label} onPress={() => openPaymentModal(category.label)} style={({ pressed }) => [styles.category, selectedCategory === category.label && styles.selected, pressed && styles.pressed]}><View style={[styles.categoryIcon, { backgroundColor: category.color }]}><Ionicons name={category.icon} size={20} color={colors.white} /></View><Text style={styles.categoryLabel}>{category.label}</Text>{selectedCategory === category.label ? <Ionicons name="checkmark-circle" size={15} color={colors.blue} style={styles.check} /> : null}</Pressable>)}</View>
+    <Text style={styles.selectHint}>Select a category to open its payment details.</Text>
+    <Modal visible={Boolean(selectedCategory)} transparent animationType="slide" onRequestClose={closePaymentModal}>
+      <KeyboardAvoidingView style={styles.modalRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.modalBackdrop} onPress={closePaymentModal} />
+        <View style={styles.modalSheet}>
+          <View style={styles.modalHandle} />
+          <View style={styles.modalHeader}><View><Text style={styles.modalEyebrow}>Pay Bills</Text><Text style={styles.formTitle}>{selectedCategory} bill payment</Text></View><Pressable accessibilityRole="button" accessibilityLabel="Close payment details" onPress={closePaymentModal} style={styles.closeButton}><Ionicons name="close" size={21} color={colors.muted} /></Pressable></View>
+          <Text style={styles.modalBalance}>Wallet balance {formatPHP(balance)}</Text>
+          <FormField label="Biller or account number" value={biller} onChangeText={setBiller} placeholder="Enter biller reference" />
+          <FormField label="Amount (PHP)" value={amount} onChangeText={setAmount} placeholder="Enter amount" keyboardType="decimal-pad" helper="Review your bill details before payment is completed." />
+          <PrimaryButton title="Pay bill" onPress={submit} icon="receipt-outline" />
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   </Screen>;
 }
 
@@ -55,7 +76,14 @@ const styles = StyleSheet.create({
   categoryLabel: { color: colors.ink, fontFamily: fonts.medium, fontSize: 10, textAlign: 'center' },
   check: { position: 'absolute', top: 7, right: 7 },
   pressed: { transform: [{ scale: .97 }] },
-  formCard: { margin: spacing.md, marginTop: 24, padding: 17, borderRadius: 15, backgroundColor: colors.white, shadowColor: '#1B235D', shadowOpacity: .08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  modalBackdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(10,14,40,.48)' },
+  modalSheet: { borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: colors.white, paddingHorizontal: spacing.lg, paddingTop: 10, paddingBottom: spacing.lg, shadowColor: '#11152E', shadowOpacity: .2, shadowRadius: 20, shadowOffset: { width: 0, height: -8 }, elevation: 10 },
+  modalHandle: { alignSelf: 'center', width: 42, height: 4, borderRadius: 3, backgroundColor: '#D8DBE5', marginBottom: 14 },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 14 },
+  modalEyebrow: { color: colors.blue, fontFamily: fonts.medium, fontSize: 10, marginBottom: 4 },
+  closeButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  modalBalance: { color: colors.muted, fontFamily: fonts.regular, fontSize: 11, marginTop: -7, marginBottom: spacing.md },
   formTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 14, marginBottom: 15 },
   selectHint: { margin: 24, color: colors.muted, textAlign: 'center', fontFamily: fonts.regular, fontSize: 11 }
 });
