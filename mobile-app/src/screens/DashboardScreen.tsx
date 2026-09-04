@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
 import { BottomNav } from '../components/BottomNav';
 import { Screen } from '../components/Screen';
 import { SectionTitle } from '../components/AppHeader';
@@ -26,6 +27,7 @@ const actions: { label: string; icon: IconName; color: string; screen: keyof Roo
 
 export function DashboardScreen({ navigation }: Props) {
   const { balance, transactions } = useDemoWallet();
+  const [balanceVisible, setBalanceVisible] = useState(true);
   const openAction = (screen: keyof RootStackParamList) => navigation.navigate(screen);
 
   return (
@@ -37,7 +39,7 @@ export function DashboardScreen({ navigation }: Props) {
           <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => navigation.navigate('Notifications')} style={styles.circleButton}><Ionicons name="notifications-outline" size={20} color={colors.ink} /><View style={styles.notificationDot} /></Pressable>
         </View>
         <Text style={styles.balanceLabel}>Available Balance</Text>
-        <View style={styles.balanceRow}><Text style={styles.balance}>₱ {balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</Text><Ionicons name="eye-outline" size={27} color={colors.white} /></View>
+        <Pressable accessibilityRole="button" accessibilityLabel={balanceVisible ? 'Hide balance' : 'Show balance'} onPress={() => setBalanceVisible((current) => !current)} style={styles.balanceRow}><Text style={styles.balance}>{balanceVisible ? `₱ ${balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}` : '₱ ••••••'}</Text><Ionicons name={balanceVisible ? 'eye-outline' : 'eye-off-outline'} size={27} color={colors.white} /></Pressable>
       </LinearGradient>
 
       <View style={styles.dashboardBody}>
