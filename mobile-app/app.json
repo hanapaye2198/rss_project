@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "iCASH",
+    "slug": "icash-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "icash",
+    "icon": "./assets/icash-icon.png",
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.icash.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1010e9",
+        "foregroundImage": "./assets/icash-icon.png"
+      },
+      "package": "com.icash.mobile"
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/icash-icon.png"
+    }
+  }
+}
