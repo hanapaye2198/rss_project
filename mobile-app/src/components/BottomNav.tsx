@@ -1,14 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '../theme';
-import { showAlert } from '../utils/feedback';
 
-export function BottomNav({ onHome }: { onHome: () => void }) {
+export function BottomNav({ onHome, onScan, onBeneficiary }: { onHome: () => void; onScan: () => void; onBeneficiary: () => void }) {
   return (
     <View style={styles.nav}>
       <Pressable accessibilityRole="button" onPress={onHome} style={styles.navItem}><Ionicons name="home-outline" size={22} color={colors.white} /><Text style={styles.navText}>Home</Text></Pressable>
-      <Pressable accessibilityRole="button" onPress={() => showAlert('Scan to pay', 'The QR scanner will be connected here.')} style={styles.scan}><Ionicons name="scan-outline" size={26} color={colors.blue} /></Pressable>
-      <Pressable accessibilityRole="button" onPress={() => showAlert('Beneficiaries', 'Your saved beneficiaries will appear here.')} style={styles.navItem}><Ionicons name="people-outline" size={22} color={colors.white} /><Text style={styles.navText}>Beneficiary</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={onScan} style={styles.scan}><Ionicons name="scan-outline" size={26} color={colors.blue} /></Pressable>
+      <Pressable accessibilityRole="button" onPress={onBeneficiary} style={styles.navItem}><Ionicons name="people-outline" size={22} color={colors.white} /><Text style={styles.navText}>Beneficiary</Text></Pressable>
     </View>
   );
 }

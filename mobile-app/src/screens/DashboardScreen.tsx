@@ -18,29 +18,23 @@ const actions: { label: string; icon: IconName; color: string; screen: keyof Roo
   { label: 'Cash-In', icon: 'wallet', color: colors.purple, screen: 'CashIn' },
   { label: 'Pay Bills', icon: 'receipt', color: colors.orange, screen: 'PayBills' },
   { label: 'E-Load', icon: 'phone-portrait', color: colors.green, screen: 'ELoad' },
-  { label: 'Crypto', icon: 'hardware-chip', color: '#F6AB1A', screen: 'Dashboard' },
-  { label: 'Loans', icon: 'hand-left', color: '#50BBDD', screen: 'Dashboard' },
-  { label: 'IREMITX', icon: 'swap-horizontal', color: '#7BC03F', screen: 'Dashboard' },
-  { label: 'Save', icon: 'save-outline', color: '#728DE0', screen: 'Dashboard' }
+  { label: 'Crypto', icon: 'hardware-chip', color: '#F6AB1A', screen: 'Crypto' },
+  { label: 'Loans', icon: 'hand-left', color: '#50BBDD', screen: 'Loans' },
+  { label: 'IREMITX', icon: 'swap-horizontal', color: '#7BC03F', screen: 'IREMITX' },
+  { label: 'Save', icon: 'save-outline', color: '#728DE0', screen: 'Save' }
 ];
 
 export function DashboardScreen({ navigation }: Props) {
   const { balance, transactions } = useDemoWallet();
-  const openAction = (screen: keyof RootStackParamList, label: string) => {
-    if (screen === 'Dashboard') {
-      showAlert(label, `${label} is coming soon to your iCASH wallet.`);
-      return;
-    }
-    navigation.navigate(screen);
-  };
+  const openAction = (screen: keyof RootStackParamList) => navigation.navigate(screen);
 
   return (
-    <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent} footer={<BottomNav onHome={() => navigation.navigate('Dashboard')} />}>
+    <Screen backgroundColor={colors.blue} contentStyle={styles.screenContent} footer={<BottomNav onHome={() => navigation.navigate('Dashboard')} onScan={() => navigation.navigate('Scan')} onBeneficiary={() => navigation.navigate('Beneficiary')} />}>
       <LinearGradient colors={[colors.blue, '#1313D7']} style={styles.walletHero}>
         <View style={styles.topBar}>
-          <Pressable accessibilityLabel="Profile" onPress={() => showAlert('Profile', 'Your account profile will appear here.')} style={styles.circleButton}><Ionicons name="person-outline" size={20} color={colors.ink} /></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Profile" onPress={() => navigation.navigate('Profile')} style={styles.circleButton}><Ionicons name="person-outline" size={20} color={colors.ink} /></Pressable>
           <Image source={require('../../assets/icash-icon.png')} style={styles.logo} resizeMode="contain" />
-          <Pressable accessibilityLabel="Notifications" onPress={() => showAlert('Notifications', 'You are all caught up.')} style={styles.circleButton}><Ionicons name="notifications-outline" size={20} color={colors.ink} /><View style={styles.notificationDot} /></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => navigation.navigate('Notifications')} style={styles.circleButton}><Ionicons name="notifications-outline" size={20} color={colors.ink} /><View style={styles.notificationDot} /></Pressable>
         </View>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <View style={styles.balanceRow}><Text style={styles.balance}>₱ {balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</Text><Ionicons name="eye-outline" size={27} color={colors.white} /></View>
@@ -49,10 +43,10 @@ export function DashboardScreen({ navigation }: Props) {
       <View style={styles.dashboardBody}>
         <View style={styles.actionPanel}>
           <View style={styles.actionRow}>
-            {actions.slice(0, 4).map((action) => <ActionTile key={action.label} {...action} onPress={() => openAction(action.screen, action.label)} />)}
+            {actions.slice(0, 4).map((action) => <ActionTile key={action.label} {...action} onPress={() => openAction(action.screen)} />)}
           </View>
           <View style={styles.actionRow}>
-            {actions.slice(4).map((action) => <ActionTile key={action.label} {...action} onPress={() => openAction(action.screen, action.label)} />)}
+            {actions.slice(4).map((action) => <ActionTile key={action.label} {...action} onPress={() => openAction(action.screen)} />)}
           </View>
         </View>
 
@@ -60,7 +54,7 @@ export function DashboardScreen({ navigation }: Props) {
           <Image source={require('../../assets/dashboard-reference.png')} style={styles.offerPhoto} resizeMode="stretch" />
         </View>
 
-        <SectionTitle title="Activities" action="View All" onAction={() => showAlert('Activities', 'Your complete transaction history will appear here.')} />
+        <SectionTitle title="Activities" action="View All" onAction={() => navigation.navigate('Activities')} />
         <View style={styles.activityCard}>
           {transactions.slice(0, 3).map((transaction, index) => <ActivityRow key={transaction.id} {...transaction} last={index === Math.min(transactions.length, 3) - 1} />)}
         </View>
