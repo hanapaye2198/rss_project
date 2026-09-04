@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleProp, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleProp, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View } from 'react-native';
 import { colors, fonts, spacing } from '../theme';
 
 type FormFieldProps = TextInputProps & { label: string; rightIcon?: keyof typeof Ionicons.glyphMap; helper?: string };
@@ -10,13 +10,15 @@ export function FormField({ label, rightIcon, helper, style, editable = true, ..
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <View style={[styles.inputWrap, !editable && styles.inputDisabled]}>
-        <TextInput {...props} editable={editable} accessibilityLabel={props.accessibilityLabel || label} placeholderTextColor="#A3A8B7" selectionColor={colors.blue} style={[styles.input, style as StyleProp<TextStyle>]} />
+        <TextInput {...props} editable={editable} accessibilityLabel={props.accessibilityLabel || label} placeholderTextColor="#A3A8B7" selectionColor={colors.blue} style={[styles.input, Platform.OS === 'web' && webInputStyle, style as StyleProp<TextStyle>]} />
         {rightIcon ? <View pointerEvents="none"><Ionicons name={rightIcon} size={17} color={colors.muted} /></View> : null}
       </View>
       {helper ? <Text style={styles.helper}>{helper}</Text> : null}
     </View>
   );
 }
+
+const webInputStyle = { outlineStyle: 'none', outlineWidth: 0, outlineColor: 'transparent' } as unknown as TextStyle;
 
 type SelectFieldProps = { label: string; value?: string; options?: string[]; onChange?: (value: string) => void; onPress?: () => void; placeholder?: string };
 
